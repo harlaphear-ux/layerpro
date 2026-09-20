@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LayerPro">
+<meta name="theme-color" content="#0a7c00">
+<link rel="manifest" href="manifest.json">
+<title>LayerPro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --g:#0a7c00;--g2:#0d9600;--g3:#d4f0d4;--g4:#f0faf0;
+  --red:#c0392b;--red2:#fff5f5;--red3:#ffd0d0;
+  --amber:#e76f00;--amber2:#fff4e6;--amber3:#ffd8a8;
+  --blue:#1971c2;--blue2:#e7f5ff;--blue3:#a5d8ff;
+  --ink:#0c1a10;--ink2:#1c3325;--ink3:#2d4a38;
+  --muted:#6b8578;--muted2:#9ab8a8;
+  --surface:#fff;--bg:#f4f8f5;--bg2:#eaf2ec;
+  --border:#c5dfc5;--border2:#e5f5e5;
+  --r:18px;--r2:14px;--r3:10px;--r4:6px;
+  --sh:0 1px 4px rgba(10,124,0,0.07),0 3px 12px rgba(10,124,0,0.05);
+  --sh2:0 6px 32px rgba(10,124,0,0.16),0 2px 8px rgba(10,124,0,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overscroll-behavior:none}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;max-width:430px;margin:0 auto;padding-bottom:84px;-webkit-font-smoothing:antialiased}
+
+/* TOAST */
+.toast{position:fixed;top:74px;left:50%;transform:translateX(-50%) translateY(-14px);background:var(--ink);color:#fff;padding:9px 18px;border-radius:30px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .25s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.18)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--g)}
+.toast.error{background:var(--red)}
+.toast.warning{background:var(--amber)}
+
+/* TOPBAR */
+.topbar{background:var(--g);padding:13px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(10,124,0,0.2)}
+.brand{display:flex;align-items:center;gap:9px}
+.brand-mark{width:33px;height:33px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);border-radius:9px;display:flex;align-items:center;justify-content:center}
+.brand-mark svg{width:17px;height:17px;color:#fff;stroke-width:1.8}
+.brand-name{font-family:'Instrument Serif',serif;font-size:18px;color:#fff}
+.brand-name em{font-style:italic;opacity:0.65}
+.topbar-right{display:flex;align-items:center;gap:7px}
+.batch-tag{background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff}
+.icon-btn{width:31px;height:31px;background:rgba(255,255,255,0.14);border:1px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:transform 0.35s}
+.icon-btn:active{transform:rotate(180deg)}
+.icon-btn svg{width:15px;height:15px;stroke-width:2}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:5px 2px calc(5px + env(safe-area-inset-bottom,0px));z-index:100;box-shadow:0 -2px 16px rgba(10,124,0,0.07)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:9px;cursor:pointer;transition:all .14s;position:relative}
+.nb svg{width:20px;height:20px;color:var(--muted2);transition:all .14s;stroke-width:1.8}
+.nb-label{font-size:9px;font-weight:700;color:var(--muted2);letter-spacing:0.2px;text-transform:uppercase}
+.nb.active svg{color:var(--g)}
+.nb.active .nb-label{color:var(--g)}
+.nb.active{background:var(--g4)}
+.nb-dot{position:absolute;top:4px;right:calc(50% - 12px);width:6px;height:6px;background:var(--red);border-radius:50%;border:2px solid var(--surface);display:none}
+.nb-dot.show{display:block}
+
+/* PAGES */
+.page{display:none;animation:su .18s ease both}
+.page.active{display:block}
+@keyframes su{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* PAGE HEADER */
+.pg-header{padding:16px 16px 12px;background:var(--surface);border-bottom:1px solid var(--border2)}
+.pg-header-eye{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:3px}
+.pg-header-title{font-family:'Instrument Serif',serif;font-size:26px;color:var(--ink)}
+
+/* HOME HERO */
+.hero{background:var(--g);margin:14px;border-radius:var(--r);padding:20px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--sh2)}
+.hero::after{content:'';position:absolute;width:180px;height:180px;background:rgba(255,255,255,0.06);top:-50px;right:-50px;border-radius:50%}
+.hero-eye{font-size:10px;font-weight:600;opacity:0.55;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px;position:relative;z-index:1}
+.hero-amount{font-family:'Instrument Serif',serif;font-size:40px;line-height:1;position:relative;z-index:1}
+.hero-sub{font-size:11px;opacity:0.45;margin-top:5px;font-weight:500;position:relative;z-index:1}
+.hero-row{display:grid;grid-template-columns:repeat(3,1fr);margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.15);position:relative;z-index:1}
+.hr-item+.hr-item{border-left:1px solid rgba(255,255,255,0.15);padding-left:12px}
+.hr-lbl{font-size:9px;opacity:0.5;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px}
+.hr-val{font-size:16px;font-weight:700}
+
+/* QUICK ACTIONS */
+.qa-row{display:flex;gap:7px;padding:0 14px 12px;overflow-x:auto;scrollbar-width:none}
+.qa-row::-webkit-scrollbar{display:none}
+.qa-btn{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:10px 12px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;box-shadow:var(--sh);min-width:64px;transition:all .13s}
+.qa-btn:active{transform:scale(0.93)}
+.qa-btn svg{width:21px;height:21px;color:var(--g);stroke-width:1.8}
+.qa-btn span{font-size:10px;font-weight:700;color:var(--ink3);white-space:nowrap}
+
+/* STAT GRID */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 14px;margin-bottom:10px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:13px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r2) var(--r2) 0 0}
+.sc.gr::before{background:var(--g)}
+.sc.am::before{background:var(--amber)}
+.sc.re::before{background:var(--red)}
+.sc.bl::before{background:var(--blue)}
+.sc-ic{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.sc-ic svg{width:14px;height:14px;stroke-width:2}
+.sc-ic.gr{background:var(--g3);color:var(--g)}
+.sc-ic.am{background:var(--amber2);color:var(--amber)}
+.sc-ic.re{background:var(--red2);color:var(--red)}
+.sc-ic.bl{background:var(--blue2);color:var(--blue)}
+.sc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px}
+.sc-val{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-0.5px}
+.sc-sub{font-size:10px;color:var(--muted2);margin-top:2px;font-weight:500}
+
+/* SECTION HEADER */
+.sh{display:flex;justify-content:space-between;align-items:center;padding:2px 14px;margin:8px 0 6px}
+.sh-title{font-size:13px;font-weight:800;color:var(--ink)}
+
+/* CHART */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;padding:13px;box-shadow:var(--sh)}
+.chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.chart-title{font-size:13px;font-weight:800;color:var(--ink)}
+.chart-badge{background:var(--g3);color:var(--g);font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.bars{display:flex;align-items:flex-end;gap:4px;height:64px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;height:100%;justify-content:flex-end}
+.bar{width:100%;border-radius:4px 4px 0 0;background:var(--g);min-height:4px;transition:height .5s cubic-bezier(.34,1.56,.64,1)}
+.bar.top{background:#f59e0b}
+.b-lbl{font-size:7px;color:var(--muted2);font-weight:700;white-space:nowrap}
+.b-val{font-size:7px;font-weight:800;color:var(--ink3)}
+
+/* INFO TABLE */
+.info-table{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;overflow:hidden;box-shadow:var(--sh)}
+.it-row{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid var(--border2)}
+.it-row:last-child{border-bottom:none}
+.it-key{font-size:13px;font-weight:500;color:var(--muted)}
+.it-val{font-size:13px;font-weight:700;color:var(--ink)}
+
+/* LIST CARD */
+.list-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;overflow:hidden;box-shadow:var(--sh)}
+.li{display:flex;align-items:center;padding:12px 14px;border-bottom:1px solid var(--border2);gap:10px}
+.li:last-child{border-bottom:none}
+.li-av{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:800;color:var(--ink)}
+.li-body{flex:1;min-width:0}
+.li-name{font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li-sub{font-size:11px;color:var(--muted2);font-weight:500;margin-top:1px}
+.li-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;margin-left:6px}
+
+/* BADGES */
+.badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.bg-g{background:var(--g3);color:var(--g)}
+.bg-r{background:var(--red2);color:var(--red)}
+.bg-a{background:var(--amber2);color:var(--amber)}
+.bg-b{background:var(--blue2);color:var(--blue)}
+.bg-m{background:var(--bg2);color:var(--muted)}
+
+/* PRODUCTION PAGE */
+.prod-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 14px 0}
+.prod-sum-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:14px;box-shadow:var(--sh)}
+.psc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.psc-val{font-size:22px;font-weight:800;color:var(--ink);letter-spacing:-0.5px}
+.psc-sub{font-size:11px;color:var(--muted2);margin-top:2px;font-weight:500}
+
+/* SALES PAGE */
+.sales-summary{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 14px 0}
+.ss-card{border-radius:var(--r2);padding:14px;box-shadow:var(--sh)}
+.ss-card.collected{background:var(--g3);border:1px solid #b3d9b3}
+.ss-card.owed{background:var(--red2);border:1px solid var(--red3)}
+.ss-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.ss-card.collected .ss-lbl{color:var(--g)}
+.ss-card.owed .ss-lbl{color:var(--red)}
+.ss-val{font-size:22px;font-weight:800;letter-spacing:-0.5px}
+.ss-card.collected .ss-val{color:var(--ink2)}
+.ss-card.owed .ss-val{color:var(--red)}
+
+/* OVERDUE */
+.overdue-bar{background:var(--red2);border:1px solid var(--red3);border-radius:var(--r2);margin:10px 14px 0;padding:11px 13px;display:flex;align-items:center;gap:9px}
+.ob-ic{width:30px;height:30px;background:var(--red);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ob-ic svg{width:15px;height:15px;color:#fff;stroke-width:2}
+.ob-title{font-size:13px;font-weight:800;color:var(--red)}
+.ob-sub{font-size:11px;color:#991b1b;font-weight:500;margin-top:1px}
+
+/* WEATHER */
+.wx-card{background:linear-gradient(145deg,#1864ab,#1971c2,#339af0);margin:14px;border-radius:var(--r);padding:18px;color:#fff;box-shadow:0 6px 28px rgba(25,113,194,0.22);position:relative;overflow:hidden}
+.wx-card::after{content:'';position:absolute;width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,0.12),transparent 70%);top:-40px;right:-40px;border-radius:50%}
+.wx-loc{font-size:10px;font-weight:700;opacity:0.65;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.wx-loc svg{width:11px;height:11px}
+.wx-temp{font-family:'Instrument Serif',serif;font-size:50px;line-height:1;position:relative;z-index:1}
+.wx-desc{font-size:13px;opacity:0.7;font-weight:500;margin-top:3px}
+.wx-chips{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.wx-chip{background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:5px 11px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:4px}
+.wx-chip svg{width:12px;height:12px}
+.advice-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;padding:14px;box-shadow:var(--sh)}
+.adv-head{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.adv-ic{width:36px;height:36px;border-radius:11px;background:var(--g3);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.adv-ic svg{width:19px;height:19px;color:var(--g);stroke-width:1.8}
+.adv-title{font-size:14px;font-weight:800;color:var(--ink)}
+.adv-text{font-size:13px;color:var(--ink3);line-height:1.6}
+.temp-guide{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;overflow:hidden;box-shadow:var(--sh)}
+.tg-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border2)}
+.tg-row:last-child{border-bottom:none}
+.tg-range{font-size:13px;font-weight:600;color:var(--muted)}
+.tg-status{font-size:12px;font-weight:800;display:flex;align-items:center;gap:4px}
+.tg-status svg{width:13px;height:13px}
+
+/* CHAT */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 185px);min-height:320px;padding:0 14px}
+.chat-msgs{flex:1;overflow-y:auto;padding:8px 0 10px;display:flex;flex-direction:column;gap:9px;scrollbar-width:none}
+.chat-msgs::-webkit-scrollbar{display:none}
+.cmsg{max-width:83%;padding:10px 14px;border-radius:18px;font-size:13px;line-height:1.55;font-weight:500}
+.cmsg.bot{background:var(--surface);border:1px solid var(--border);color:var(--ink);align-self:flex-start;border-radius:4px 18px 18px 18px;box-shadow:var(--sh)}
+.cmsg.user{background:var(--g);color:#fff;align-self:flex-end;border-radius:18px 18px 4px 18px}
+.chat-bar{display:flex;gap:8px;padding:8px 0 4px;border-top:1px solid var(--border2)}
+.chat-inp{flex:1;background:var(--surface);border:1.5px solid var(--border);border-radius:22px;padding:10px 15px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);outline:none}
+.chat-inp:focus{border-color:var(--g)}
+.chat-btns{display:flex;gap:6px;align-items:center}
+.chat-send,.chat-mic{width:42px;height:42px;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.chat-send{background:var(--g);color:#fff;box-shadow:0 3px 10px rgba(10,124,0,0.28)}
+.chat-send svg{width:17px;height:17px}
+.chat-mic{background:var(--surface);border:1.5px solid var(--border);color:var(--g)}
+.chat-mic svg{width:17px;height:17px}
+.chat-mic.recording{background:var(--red);border-color:var(--red);color:#fff;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.6}}
+.api-banner{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid var(--amber3);border-radius:var(--r2);padding:12px 14px;margin:14px 14px 8px;display:flex;flex-direction:column;gap:9px}
+.api-banner p{font-size:12px;font-weight:600;color:#78350f;display:flex;align-items:center;gap:5px}
+.api-row{display:flex;gap:8px}
+.api-inp{flex:1;background:#fff;border:1.5px solid var(--amber3);border-radius:var(--r4);padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;outline:none;color:var(--ink)}
+.api-btn{background:var(--amber);color:#fff;border:none;border-radius:var(--r4);padding:9px 14px;font-size:12px;font-weight:800;font-family:'DM Sans',sans-serif;cursor:pointer;white-space:nowrap}
+
+/* BATCH */
+.btabs{display:flex;gap:7px;padding:10px 14px 0;overflow-x:auto;scrollbar-width:none}
+.btabs::-webkit-scrollbar{display:none}
+.btab{flex-shrink:0;padding:7px 15px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;background:var(--surface);border:1.5px solid var(--border);color:var(--muted);transition:all .14s}
+.btab.active{background:var(--g);color:#fff;border-color:var(--g)}
+.batch-content{display:none}
+.batch-content.active{display:block}
+.batch-hero{border-radius:var(--r);margin:10px 14px;padding:18px;color:#fff;box-shadow:var(--sh2);position:relative;overflow:hidden}
+.batch-hero::before{content:'';position:absolute;width:160px;height:160px;background:radial-gradient(circle,rgba(255,255,255,0.1),transparent 70%);top:-40px;right:-40px;border-radius:50%}
+.bh-eye{font-size:10px;font-weight:700;opacity:0.6;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px;position:relative;z-index:1}
+.bh-amount{font-family:'Instrument Serif',serif;font-size:32px;position:relative;z-index:1}
+.bh-sub{font-size:11px;opacity:0.55;margin-top:3px;font-weight:500;position:relative;z-index:1}
+.bh-grid{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15);position:relative;z-index:1}
+.bhg+.bhg{border-left:1px solid rgba(255,255,255,0.15);padding-left:12px}
+.bhg-lbl{font-size:9px;opacity:0.55;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:2px}
+.bhg-val{font-size:14px;font-weight:700}
+
+/* CUSTOMER */
+.cust-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 8px;padding:13px;box-shadow:var(--sh)}
+.cust-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cust-info{display:flex;align-items:center;gap:9px}
+.cust-av{width:35px;height:35px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--ink);flex-shrink:0}
+.cust-name{font-size:14px;font-weight:800;color:var(--ink)}
+.cust-stats{display:flex;gap:13px;flex-wrap:wrap;margin-bottom:8px}
+.cstat{font-size:11px;color:var(--muted);font-weight:500}
+.cstat b{color:var(--ink);font-weight:700}
+.cust-note{background:var(--bg2);border-radius:var(--r4);padding:7px 10px;font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.cust-note svg{width:13px;height:13px;color:var(--muted);flex-shrink:0}
+.cust-note-input{width:100%;background:transparent;border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink3);font-weight:500}
+
+/* END BATCH */
+.end-batch-wrap{margin:0 14px 14px}
+.end-batch-btn{width:100%;background:linear-gradient(135deg,#7f1d1d,var(--red));color:#fff;border:none;border-radius:var(--r2);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:800;padding:13px 18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px rgba(192,57,43,0.28);transition:all .13s}
+.end-batch-btn:active{transform:scale(0.98);opacity:0.9}
+.end-batch-btn svg{width:17px;height:17px;stroke-width:2}
+.end-batch-hint{text-align:center;font-size:11px;color:var(--muted);margin-top:6px}
+
+/* FORMS */
+.form-wrap{padding:8px 14px 0}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:15px;box-shadow:var(--sh);margin-bottom:10px}
+.fc-head{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.fc-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fc-ic svg{width:17px;height:17px;stroke-width:1.8}
+.fc-ic.g{background:var(--g3);color:var(--g)}
+.fc-ic.a{background:var(--amber2);color:var(--amber)}
+.fc-ic.r{background:var(--red2);color:var(--red)}
+.fc-ic.b{background:var(--blue2);color:var(--blue)}
+.fc-title{font-size:15px;font-weight:800;color:var(--ink)}
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r3);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;padding:11px 13px;outline:none;transition:all .14s;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--g);background:#fff;box-shadow:0 0 0 3px rgba(10,124,0,0.1)}
+textarea{resize:none;height:70px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hint{font-size:12px;color:var(--g);font-weight:700;text-align:center;min-height:16px;margin:-3px 0 7px}
+.calc-hint{font-size:11px;color:var(--blue);font-weight:700;background:var(--blue2);padding:5px 10px;border-radius:var(--r4);margin-bottom:9px;display:none}
+.half-btns{display:flex;gap:7px;margin-bottom:9px}
+.half-btn{flex:1;background:var(--bg2);border:1.5px solid var(--border);border-radius:var(--r3);padding:8px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;color:var(--ink3);cursor:pointer;text-align:center;transition:all .13s}
+.half-btn:active{background:var(--g3);border-color:var(--g);color:var(--g)}
+.btn-primary{width:100%;background:var(--g);color:#fff;border:none;border-radius:var(--r3);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:800;padding:13px;cursor:pointer;transition:all .13s;box-shadow:0 3px 12px rgba(10,124,0,0.2);margin-top:2px}
+.btn-primary:active{transform:scale(0.98);opacity:0.9}
+datalist{display:none}
+
+/* NOTIFICATIONS PAGE */
+.notif-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;overflow:hidden;box-shadow:var(--sh)}
+.notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border2)}
+.notif-item:last-child{border-bottom:none}
+.notif-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.notif-dot.red{background:var(--red)}
+.notif-dot.amber{background:var(--amber)}
+.notif-dot.green{background:var(--g)}
+.notif-dot.blue{background:var(--blue)}
+.notif-title{font-size:13px;font-weight:700;color:var(--ink)}
+.notif-sub{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px}
+
+/* REMINDER SETTINGS */
+.reminder-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);margin:0 14px 10px;padding:15px;box-shadow:var(--sh)}
+.reminder-title{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.reminder-title svg{width:18px;height:18px;color:var(--g)}
+.reminder-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.reminder-row:last-child{margin-bottom:0}
+.reminder-lbl{font-size:13px;font-weight:600;color:var(--ink3);flex:1}
+.reminder-time{width:110px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r3);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);outline:none}
+.reminder-toggle{width:44px;height:24px;border-radius:12px;background:var(--border);border:none;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.reminder-toggle.on{background:var(--g)}
+.reminder-toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+.reminder-toggle.on::after{left:23px}
+.save-reminders{width:100%;background:var(--g);color:#fff;border:none;border-radius:var(--r3);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:800;padding:11px;cursor:pointer;margin-top:12px}
+
+/* SETTINGS */
+.settings-wrap{padding:8px 14px 0}
+.sg-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin:14px 0 7px 2px}
+.setting-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;box-shadow:var(--sh);margin-bottom:8px}
+.sr-item{display:flex;align-items:center;padding:13px 14px;gap:11px;cursor:pointer;border-bottom:1px solid var(--border2);transition:background .1s}
+.sr-item:last-child{border-bottom:none}
+.sr-item:active{background:var(--bg2)}
+.sri-ic{width:35px;height:35px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sri-ic svg{width:16px;height:16px;stroke-width:1.8}
+.sri-body{flex:1}
+.sri-title{font-size:14px;font-weight:700;color:var(--ink)}
+.sri-sub{font-size:11px;color:var(--muted);font-weight:500;margin-top:1px}
+.sri-arrow{color:var(--muted2)}
+.sri-arrow svg{width:16px;height:16px}
+
+.empty{text-align:center;padding:28px 16px;color:var(--muted)}
+.empty svg{width:34px;height:34px;color:var(--border);margin-bottom:8px;display:block;margin-left:auto;margin-right:auto}
+.empty p{font-size:13px;font-weight:600}
+.mark-paid-section{padding:0 14px 10px}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </div>
+    <div class="brand-name">Layer<em>Pro</em></div>
+  </div>
+  <div class="topbar-right">
+    <div class="batch-tag" id="batchTag">Batch 11</div>
+    <div class="icon-btn" onclick="go('notifications')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <div class="icon-btn" onclick="location.reload()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="pg-home">
+  <div class="hero">
+    <div class="hero-eye">Net Cash · Current Batch</div>
+    <div class="hero-amount" id="hNetCash">₦0</div>
+    <div class="hero-sub" id="hSub">Loading...</div>
+    <div class="hero-row">
+      <div class="hr-item"><div class="hr-lbl">Produced</div><div class="hr-val" id="hProd">—</div></div>
+      <div class="hr-item"><div class="hr-lbl">Sold</div><div class="hr-val" id="hSold">—</div></div>
+      <div class="hr-item"><div class="hr-lbl">Stock</div><div class="hr-val" id="hStock">—</div></div>
+    </div>
+  </div>
+  <div class="qa-row">
+    <div class="qa-btn" onclick="quickLog('prod')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6" ry="8"/><path d="M12 4c1.5 2 2.5 4 2.5 8s-1 6-2.5 8"/></svg><span>Log Eggs</span></div>
+    <div class="qa-btn" onclick="quickLog('sale')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg><span>Log Sale</span></div>
+    <div class="qa-btn" onclick="go('sales')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg><span>Debtors</span></div>
+    <div class="qa-btn" onclick="go('weather')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg><span>Weather</span></div>
+    <div class="qa-btn" onclick="go('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>AI Chat</span></div>
+  </div>
+  <div class="stat-grid">
+    <div class="sc re"><div class="sc-ic re"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="sc-lbl">Cash Owed</div><div class="sc-val" id="hOwed">₦0</div><div class="sc-sub">by debtors</div></div>
+    <div class="sc am"><div class="sc-ic am"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sc-lbl">Today</div><div class="sc-val" id="hToday">—</div><div class="sc-sub" id="hTodaySub">not logged</div></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-head"><div class="chart-title">Daily Production</div><div class="chart-badge" id="chartAvg">avg — pcs</div></div>
+    <div class="bars" id="chartBars"></div>
+  </div>
+  <div class="sh"><div class="sh-title">Operation Info</div></div>
+  <div class="info-table">
+    <div class="it-row"><span class="it-key">Feed Cost</span><span class="it-val" id="feedDisplay">₦67,250</span></div>
+    <div class="it-row"><span class="it-key">Standard Price</span><span class="it-val">₦4,700 / crate</span></div>
+    <div class="it-row"><span class="it-key">Bulk Price (5c+)</span><span class="it-val">₦4,500 / crate</span></div>
+    <div class="it-row"><span class="it-key">Wife Price</span><span class="it-val">₦4,500 / crate</span></div>
+    <div class="it-row"><span class="it-key">1 Crate</span><span class="it-val">= 30 pieces</span></div>
+  </div>
+  <div class="end-batch-wrap">
+    <button class="end-batch-btn" id="endBatchBtn" onclick="endBatch()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+      End Batch & Start Next
+    </button>
+    <div class="end-batch-hint">Tap only when feed is finished · Saves to Batch history</div>
+  </div>
+</div>
+
+<!-- PRODUCTION -->
+<div class="page" id="pg-production">
+  <div class="pg-header">
+    <div class="pg-header-eye">Current Batch · Eggs</div>
+    <div class="pg-header-title" id="pTotal">— pieces</div>
+  </div>
+  <div class="prod-summary">
+    <div class="prod-sum-card"><div class="psc-lbl">In Crates</div><div class="psc-val" id="pCratesVal">—</div><div class="psc-sub" id="pExtraPcs">— extra</div></div>
+    <div class="prod-sum-card"><div class="psc-lbl">Daily Avg</div><div class="psc-val" id="pAvg">—</div><div class="psc-sub">pieces/day</div></div>
+  </div>
+  <div class="sh" style="margin-top:10px"><div class="sh-title">Daily Log</div></div>
+  <div class="list-card" id="prodList"></div>
+</div>
+
+<!-- SALES -->
+<div class="page" id="pg-sales">
+  <div class="pg-header">
+    <div class="pg-header-eye">Current Batch · Sales</div>
+    <div class="pg-header-title">Money Tracker</div>
+  </div>
+  <div class="sales-summary">
+    <div class="ss-card collected"><div class="ss-lbl">Collected</div><div class="ss-val" id="sCash">₦0</div></div>
+    <div class="ss-card owed"><div class="ss-lbl">Owed</div><div class="ss-val" id="sOwed">₦0</div></div>
+  </div>
+  <div id="overdueBanners"></div>
+  <div class="sh" style="margin-top:10px"><div class="sh-title">Active Debtors</div></div>
+  <div class="list-card" id="debtList"></div>
+  <div class="sh"><div class="sh-title">Mark Payment</div></div>
+  <div class="mark-paid-section">
+    <div class="form-card" style="margin-bottom:0">
+      <div class="fld"><label>Select Debtor</label><select id="dSel"></select></div>
+      <div class="fld"><label>Cash Paid (₦)</label><input type="number" id="dCash" placeholder="Enter amount paid"/></div>
+      <button class="btn-primary" onclick="markPaid()">✓ Mark as Paid</button>
+    </div>
+  </div>
+  <div class="sh"><div class="sh-title">Sales Log</div></div>
+  <div class="list-card" id="salesList"></div>
+</div>
+
+<!-- CUSTOMERS -->
+<div class="page" id="pg-customers">
+  <div class="pg-header"><div class="pg-header-eye">Directory</div><div class="pg-header-title">Customers</div></div>
+  <div style="padding-top:10px" id="customerList"></div>
+</div>
+
+<!-- BATCHES -->
+<div class="page" id="pg-batches">
+  <div class="pg-header"><div class="pg-header-eye">History</div><div class="pg-header-title">Batch Records</div></div>
+  <div class="btabs" id="batchTabs"></div>
+  <div id="batchContents"></div>
+</div>
+
+<!-- WEATHER -->
+<div class="page" id="pg-weather">
+  <div class="wx-card" style="margin-top:14px">
+    <div class="wx-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Ilorin, Kwara State</div>
+    <div class="wx-temp" id="wTemp">—°C</div>
+    <div class="wx-desc" id="wDesc">Loading...</div>
+    <div class="wx-chips">
+      <div class="wx-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg><span id="wHumTxt">—%</span></div>
+      <div class="wx-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg><span id="wFeelTxt">Feels —°C</span></div>
+      <div class="wx-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg><span id="wWindTxt">— km/h</span></div>
+    </div>
+  </div>
+  <div class="advice-card">
+    <div class="adv-head"><div class="adv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="adv-title">Bird Health Advice</div></div>
+    <div class="adv-text" id="advText">Fetching weather data...</div>
+  </div>
+  <div class="sh"><div class="sh-title">Temperature Guide</div></div>
+  <div class="temp-guide">
+    <div class="tg-row"><span class="tg-range">Below 18°C</span><span class="tg-status" style="color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>Too Cold</span></div>
+    <div class="tg-row"><span class="tg-range">18°C – 24°C</span><span class="tg-status" style="color:var(--g)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Ideal</span></div>
+    <div class="tg-row"><span class="tg-range">24°C – 30°C</span><span class="tg-status" style="color:var(--amber)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>Warm</span></div>
+    <div class="tg-row"><span class="tg-range">30°C – 35°C</span><span class="tg-status" style="color:#e25600"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>Hot</span></div>
+    <div class="tg-row"><span class="tg-range">Above 35°C</span><span class="tg-status" style="color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger</span></div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="page" id="pg-chat">
+  <div class="api-banner" id="apiBanner">
+    <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>AI powered by Gemini — tap mic to speak</p>
+    <div class="api-row"><input type="password" class="api-inp" id="apiKeyInput" placeholder="Paste Gemini API key..."/><button class="api-btn" onclick="saveApiKey()">Save</button></div>
+  </div>
+  <div class="chat-wrap">
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="cmsg bot">👋 Hi! I'm your LayerPro AI powered by Gemini. Tap the mic to speak or type your question. I know everything about your farm!</div>
+    </div>
+    <div class="chat-bar">
+      <input class="chat-inp" id="chatInp" placeholder="Ask anything or tap mic to speak..." onkeydown="if(event.key==='Enter')sendChat()"/>
+      <div class="chat-btns">
+        <button class="chat-mic" id="micBtn" onclick="toggleMic()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+        <button class="chat-send" onclick="sendChat()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG -->
+<div class="page" id="pg-log">
+  <div class="form-wrap">
+    <div class="form-card" id="logProdCard">
+      <div class="fc-head"><div class="fc-ic g"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6" ry="8"/></svg></div><div class="fc-title">Log Production</div></div>
+      <div class="fld"><label>Date</label><input type="date" id="lPDate"/></div>
+      <div class="fld"><label>Pieces Collected</label><input type="number" id="lPPcs" placeholder="e.g. 76" oninput="showHint(this.value)" min="1"/></div>
+      <div class="hint" id="pcsHint"></div>
+      <div class="fld"><label>Note (optional)</label><input type="text" id="lPNote" placeholder="Morning collection..."/></div>
+      <button class="btn-primary" onclick="logProd()">Save Production</button>
+    </div>
+    <div class="form-card" id="logSaleCard">
+      <div class="fc-head"><div class="fc-ic a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="fc-title">Log Sale</div></div>
+      <div class="fld"><label>Date</label><input type="date" id="lSDate"/></div>
+      <div class="fld"><label>Buyer Name</label><input type="text" id="lSBuyer" placeholder="Name" list="buyerSuggestions" autocomplete="off"/><datalist id="buyerSuggestions"></datalist></div>
+      <div class="g2">
+        <div class="fld"><label>Crates</label><input type="number" id="lSCrates" placeholder="0" min="0" oninput="calcSaleTotal()"/></div>
+        <div class="fld"><label>Extra Pieces</label><input type="number" id="lSPcs" placeholder="0" min="0" oninput="calcSaleTotal()"/></div>
+      </div>
+      <div class="half-btns">
+        <div class="half-btn" onclick="setHalf()">½ Crate (15 pcs)</div>
+        <div class="half-btn" onclick="setOneCrate()">1 Crate (30 pcs)</div>
+      </div>
+      <div class="fld"><label>Rate</label>
+        <select id="lSType" onchange="calcSaleTotal()">
+          <option value="standard">Standard — ₦4,700/crate</option>
+          <option value="bulk">Bulk 5c+ — ₦4,500/crate</option>
+          <option value="wife">Wife — ₦4,500/crate</option>
+        </select>
+      </div>
+      <div class="calc-hint" id="calcHint"></div>
+      <div class="g2">
+        <div class="fld"><label>Cash Paid (₦)</label><input type="number" id="lSPaid" placeholder="0" min="0"/></div>
+        <div class="fld"><label>Cash Owed (₦)</label><input type="number" id="lSOwed" placeholder="0" min="0"/></div>
+      </div>
+      <button class="btn-primary" onclick="logSale()">Save Sale</button>
+    </div>
+    <div class="form-card">
+      <div class="fc-head"><div class="fc-ic r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="fc-title">Log Expense</div></div>
+      <div class="fld"><label>Date</label><input type="date" id="lEDate"/></div>
+      <div class="g2">
+        <div class="fld"><label>Amount (₦)</label><input type="number" id="lEAmt" placeholder="e.g. 2500" min="1"/></div>
+        <div class="fld"><label>Category</label><select id="lECat"><option value="Labour">Labour</option><option value="Medicine">Medicine</option><option value="Feed">Feed</option><option value="Personal">Personal</option><option value="Other">Other</option></select></div>
+      </div>
+      <div class="fld"><label>Description</label><input type="text" id="lENote" placeholder="Details..."/></div>
+      <button class="btn-primary" onclick="logExpense()">Save Expense</button>
+    </div>
+    <div class="form-card">
+      <div class="fc-head"><div class="fc-ic b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg></div><div class="fc-title">Add Debtor</div></div>
+      <div class="fld"><label>Name</label><input type="text" id="lDName" placeholder="Name"/></div>
+      <div class="fld"><label>Cash Owed (₦)</label><input type="number" id="lDCash" placeholder="0" min="0"/></div>
+      <div class="fld"><label>Note</label><input type="text" id="lDNote" placeholder="Optional"/></div>
+      <button class="btn-primary" onclick="addDebtor()">Add Debtor</button>
+    </div>
+  </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="page" id="pg-notifications">
+  <div class="pg-header"><div class="pg-header-eye">Alerts & Reminders</div><div class="pg-header-title">Notifications</div></div>
+  <div style="padding-top:10px">
+    <!-- REMINDER SETTINGS -->
+    <div class="reminder-card">
+      <div class="reminder-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Daily Reminders
+      </div>
+      <div class="reminder-row">
+        <div class="reminder-lbl">🌅 Morning</div>
+        <input type="time" class="reminder-time" id="rem1Time" value="07:00"/>
+        <button class="reminder-toggle on" id="rem1Toggle" onclick="toggleReminder(1)"></button>
+      </div>
+      <div class="reminder-row">
+        <div class="reminder-lbl">☀️ Afternoon</div>
+        <input type="time" class="reminder-time" id="rem2Time" value="13:00"/>
+        <button class="reminder-toggle on" id="rem2Toggle" onclick="toggleReminder(2)"></button>
+      </div>
+      <div class="reminder-row">
+        <div class="reminder-lbl">🌙 Evening</div>
+        <input type="time" class="reminder-time" id="rem3Time" value="19:00"/>
+        <button class="reminder-toggle on" id="rem3Toggle" onclick="toggleReminder(3)"></button>
+      </div>
+      <button class="save-reminders" onclick="saveReminders()">Save Reminder Times</button>
+    </div>
+
+    <div class="sh"><div class="sh-title">Farm Alerts</div></div>
+    <div class="notif-card" id="notifList"></div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="pg-settings">
+  <div class="pg-header"><div class="pg-header-eye">Preferences</div><div class="pg-header-title">Settings</div></div>
+  <div class="settings-wrap">
+    <div class="sg-title">Data & Reports</div>
+    <div class="setting-card">
+      <div class="sr-item" onclick="exportCSV()"><div class="sri-ic" style="background:var(--g3)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--g)"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><div class="sri-body"><div class="sri-title">Download CSV Report</div><div class="sri-sub">Export all data as spreadsheet</div></div><div class="sri-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="sr-item" onclick="exportWeekly()"><div class="sri-ic" style="background:var(--blue2)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--blue)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><div class="sri-body"><div class="sri-title">Weekly Summary</div><div class="sri-sub">Generate this week's report</div></div><div class="sri-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+      <div class="sr-item" onclick="shareWhatsApp()"><div class="sri-ic" style="background:#dcfce7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#16a34a"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div><div class="sri-body"><div class="sri-title">Share via WhatsApp</div><div class="sri-sub">Send weekly report to client</div></div><div class="sri-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div></div>
+    </div>
+    <div class="sg-title">AI Assistant</div>
+    <div class="setting-card">
+      <div class="sr-item" style="flex-direction:column;align-items:stretch;gap:10px;cursor:default">
+        <div style="display:flex;align-items:center;gap:10px"><div class="sri-ic" style="background:#e8f5e9"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#2e7d32"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div class="sri-body"><div class="sri-title">Gemini API Key</div><div class="sri-sub" id="apiStatus">Not configured</div></div></div>
+        <input type="password" id="settingsApiKey" placeholder="Paste Gemini API key..."/>
+        <button class="btn-primary" onclick="saveApiKeySettings()">Save API Key</button>
+      </div>
+    </div>
+    <div class="sg-title">App Info</div>
+    <div class="info-table" style="margin:0">
+      <div class="it-row"><span class="it-key">App Version</span><span class="it-val">LayerPro v7.0</span></div>
+      <div class="it-row"><span class="it-key">Location</span><span class="it-val">Ilorin, Kwara</span></div>
+      <div class="it-row"><span class="it-key">Current Batch</span><span class="it-val" id="currentBatchInfo">Batch 11</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <div class="nb active" onclick="go('home')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><div class="nb-label">Home</div></div>
+  <div class="nb" onclick="go('production')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6" ry="8"/><path d="M12 4c1.5 2 2.5 4 2.5 8s-1 6-2.5 8"/></svg><div class="nb-label">Eggs</div></div>
+  <div class="nb" onclick="go('sales')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><div class="nb-label">Sales</div><div class="nb-dot" id="salesDot"></div></div>
+  <div class="nb" onclick="go('customers')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><div class="nb-label">Buyers</div></div>
+  <div class="nb" onclick="go('batches')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg><div class="nb-label">Batches</div></div>
+  <div class="nb" onclick="go('weather')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg><div class="nb-label">Weather</div></div>
+  <div class="nb" onclick="go('chat')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><div class="nb-label">AI Chat</div></div>
+  <div class="nb" onclick="go('log')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg><div class="nb-label">Log</div></div>
+  <div class="nb" onclick="go('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><div class="nb-label">Settings</div></div>
+</div>
+
+<script>
+// ── BATCH HISTORY ─────────────────────────────────────────────────────────────
+const BATCH_HISTORY = [
+  {id:'batch1',name:'Batch 1',feedCost:86700,startDate:'2026-04-11',endDate:'2026-04-27',totalRevenue:185550,netProfit:89850,expenses:9000,margin:48.4,totalPieces:1175,debtors:[{name:'Wife',owed:3550,note:'Balance remaining',paid:false}]},
+  {id:'batch2',name:'Batch 2',feedCost:86700,startDate:'2026-04-27',endDate:'2026-05-13',totalRevenue:148450,netProfit:50250,expenses:11500,margin:33.8,totalPieces:1262,debtors:[{name:'Mum Nasirudeen',owed:10000,note:'Mon 11 May — 2 crates',paid:true},{name:'Unsold Stock',owed:27500,note:'5.5 crates unsold',paid:true,isStock:true}]},
+  {id:'batch3',name:'Batch 3',feedCost:86700,startDate:'2026-05-14',endDate:'2026-05-28',totalRevenue:142500,netProfit:55800,expenses:0,margin:39.2,totalPieces:1011,debtors:[{name:'Mum Othman Friend',owed:15000,note:'Thu 28 May — 3 crates',paid:true},{name:'Mum Nasirudeen',owed:10000,note:'Wed 27 May — 2 crates',paid:true},{name:'Mum Othman',owed:2500,note:'Fri 22 May — partial',paid:false},{name:'Unsold Stock',owed:10000,note:'2 crates sold to Mum Faizah',paid:true,isStock:true}]},
+  {id:'batch4',name:'Batch 4',feedCost:86700,startDate:'2026-05-29',endDate:'2026-06-11',totalRevenue:144500,netProfit:57800,expenses:0,margin:40.0,totalPieces:1007,debtors:[{name:'Mum Othman Friend',owed:25000,note:'Mon 8 Jun — 5 crates',paid:true},{name:'Wife',owed:47000,note:'7 Jun + 11 Jun crates',paid:true},{name:'Iya Eledu',owed:10000,note:'Thu 11 Jun — 2 crates',paid:true}]},
+  {id:'batch5',name:'Batch 5',feedCost:69750,startDate:'2026-06-12',endDate:'2026-06-25',totalRevenue:112800,netProfit:43050,expenses:0,margin:38.2,totalPieces:978,debtors:[{name:'Wife',owed:22500,note:'25 Jun — 5 crates',paid:true},{name:'Mum Othman Friend',owed:23500,note:'22 Jun — 5 crates',paid:true},{name:'Iya Eledu',owed:14100,note:'21 Jun — 3 crates',paid:true}]},
+  {id:'batch6',name:'Batch 6',feedCost:67250,startDate:'2026-06-26',endDate:'2026-07-07',totalRevenue:103950,netProfit:36700,expenses:0,margin:35.3,totalPieces:875,debtors:[{name:'Iya Eledu',owed:14100,note:'2 Jul — 3 crates',paid:true},{name:'Wife',owed:18000,note:'3 Jul — 4 crates',paid:true},{name:'Mum Othman Friend',owed:11750,note:'5 Jul — 2.5 crates',paid:true},{name:'Unsold Stock',owed:9400,note:'2 crates — sold to Mum Eledu',paid:true,isStock:true}]},
+  {id:'batch7',name:'Batch 7',feedCost:67250,startDate:'2026-07-08',endDate:'2026-07-20',totalRevenue:90250,netProfit:23000,expenses:0,margin:25.5,totalPieces:972,debtors:[{name:'Mum Othman Friend',owed:18800,note:'8 Jul — 4 crates',paid:true},{name:'Wife',owed:31500,note:'7 Jul + 11 Jul crates',paid:true},{name:'Iya Eledu',owed:10000,note:'11 Jul — 2 crates',paid:false}]},
+  {id:'batch8',name:'Batch 8',feedCost:67250,startDate:'2026-07-21',endDate:'2026-08-03',totalRevenue:144700,netProfit:77450,expenses:0,margin:53.5,totalPieces:1066,debtors:[{name:'Mum Othman Friend',owed:18800,note:'Aug — 4 crates',paid:true},{name:'Wife',owed:27500,note:'Batch 8 crates',paid:true},{name:'Mum Nasirudeen',owed:9400,note:'1 Aug — 2 crates',paid:true},{name:'Unsold Stock',owed:4700,note:'1 crate unsold',paid:true,isStock:true}]},
+  {id:'batch9',name:'Batch 9',feedCost:67250,startDate:'2026-08-04',endDate:'2026-08-15',totalRevenue:109600,netProfit:42350,expenses:0,margin:38.6,totalPieces:922,debtors:[{name:'Wife',owed:27500,note:'Batch 9 crates',paid:true},{name:'Mum Othman Friend',owed:18800,note:'Batch 9 — 4 crates',paid:true}]},
+  {id:'batch10',name:'Batch 10',feedCost:67250,startDate:'2026-08-16',endDate:'2026-08-28',totalRevenue:122850,netProfit:55600,expenses:0,margin:45.3,totalPieces:995,debtors:[{name:'Mum Othman Friend',owed:18800,note:'Batch 10 — 4 crates',paid:true},{name:'Mum Nasirudeen',owed:9400,note:'Batch 10 — 2 crates',paid:true}]},
+];
+
+// ── CURRENT BATCH DATA ────────────────────────────────────────────────────────
+let S = {
+  currentBatch:12, feedCost:67250,
+  production:[
+    {date:'2026-09-10',pieces:73,note:'Wednesday — Batch 12 starts'},
+    {date:'2026-09-11',pieces:72,note:'Thursday'},
+    {date:'2026-09-12',pieces:73,note:'Friday'},
+    {date:'2026-09-13',pieces:75,note:'Saturday'},
+  ],
+  sales:[
+    {date:'2026-09-13',buyer:'Wife',crates:2,pieces:15,paid:0,owed:11250,type:'wife',note:'2.5 crates'},
+  ],
+  expenses:[
+  ],
+  debtors:[
+    {id:1,name:'Wife',cashOwed:11250,note:'Sat 13 Sep — 2.5 crates @ ₦4,500',addedDate:'2026-09-13'},
+  ],
+  closedBatches:[{
+      id:'batch11', name:'Batch 11',
+      feedCost:67250,
+      startDate:'2026-08-29', endDate:'2026-09-09',
+      totalRevenue:105150,
+      netProfit:37900,
+      expenses:0,
+      margin:36.0,
+      totalPieces:889,
+      unsoldPieces:0,
+      unsoldValue:0,
+      debtors:[]
+    }
+  ],
+  buyerNotes:{},
+  reminders:{
+    r1:{time:'07:00',on:true},
+    r2:{time:'13:00',on:true},
+    r3:{time:'19:00',on:true},
+  }
+};
+
+function save(){try{localStorage.setItem('lp_v7',JSON.stringify(S));}catch(e){}}
+function load(){
+  try{
+    const d=localStorage.getItem('lp_v7');
+    if(d){const p=JSON.parse(d);if(p&&p.currentBatch)S=p;}
+  }catch(e){}
+}
+
+function fmtE(p){const c=Math.floor(p/30),r=p%30;if(c===0)return r+'p';if(r===0)return c+'c';return c+'c '+r+'p';}
+function fmtEF(p){const c=Math.floor(p/30),r=p%30;if(c===0)return r+' pieces';if(r===0)return c+' crates';return c+' crates, '+r+' pieces';}
+function fmtD(d){if(!d)return '—';return new Date(d+'T00:00:00').toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'short'});}
+function td(){return new Date().toISOString().split('T')[0];}
+function N(n){return '₦'+Number(n||0).toLocaleString();}
+function avBg(name){const c=['#d4f0d4','#fef3c7','#dbeafe','#f3e8ff','#fce7f3','#ccfbf1','#e0f2fe'];return c[name.charCodeAt(0)%c.length];}
+function daysBetween(d1,d2){return Math.floor((new Date(d2)-new Date(d1))/(1000*60*60*24));}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  if(navigator.vibrate)navigator.vibrate(type==='error'?[80,40,80]:40);
+  setTimeout(()=>t.className='toast',2600);
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+const PAGES=['home','production','sales','customers','batches','weather','chat','log','notifications','settings'];
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const pg=document.getElementById('pg-'+name);if(pg)pg.classList.add('active');
+  const i=PAGES.indexOf(name);if(i>=0)document.querySelectorAll('.nb')[i].classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='weather')loadWeather();
+  if(name==='batches'){renderBatches();setTimeout(()=>{const tabs=document.querySelectorAll('.btab');if(tabs.length)tabs[tabs.length-1].click();},100);}
+  if(name==='customers')renderCustomers();
+  if(name==='notifications'){renderNotifications();loadReminderUI();}
+}
+function quickLog(type){go('log');setTimeout(()=>{document.getElementById(type==='prod'?'logProdCard':'logSaleCard').scrollIntoView({behavior:'smooth'});},150);}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const t=td();
+  const totalPcs=S.production.reduce((s,p)=>s+p.pieces,0);
+  const totalSoldPcs=S.sales.reduce((s,x)=>s+(x.crates*30+x.pieces),0);
+  const stockPcs=Math.max(0,totalPcs-totalSoldPcs);
+  const cashIn=S.sales.reduce((s,x)=>s+(x.paid||0),0);
+  const cashOwed=S.debtors.reduce((s,d)=>s+(d.cashOwed||0),0);
+  const totalExp=S.expenses.reduce((s,e)=>s+(e.amount||0),0);
+  const netCash=cashIn-totalExp;
+  const todayPcs=S.production.filter(p=>p.date===t).reduce((s,p)=>s+p.pieces,0);
+  const avg=S.production.length>0?Math.round(totalPcs/S.production.length):0;
+  const n=S.currentBatch||11;
+
+  document.getElementById('hNetCash').textContent=N(netCash);
+  document.getElementById('hSub').textContent=S.feedCost>0?`Feed: ${N(S.feedCost)} · Batch ${n}`:`Batch ${n} · Log feed cost in expenses`;
+  document.getElementById('hProd').textContent=fmtE(totalPcs);
+  document.getElementById('hSold').textContent=Math.floor(totalSoldPcs/30)+'c';
+  document.getElementById('hStock').textContent=fmtE(stockPcs);
+  document.getElementById('hOwed').textContent=N(cashOwed);
+  document.getElementById('hToday').textContent=todayPcs>0?fmtE(todayPcs):'—';
+  document.getElementById('hTodaySub').textContent=todayPcs>0?todayPcs+' pieces':'not logged yet';
+  document.getElementById('chartAvg').textContent='avg '+avg+' pcs';
+  document.getElementById('batchTag').textContent='Batch '+n;
+  document.getElementById('currentBatchInfo').textContent='Batch '+n;
+  document.getElementById('endBatchBtn').textContent='End Batch '+n+' & Start '+(n+1);
+  document.getElementById('feedDisplay').textContent=N(S.feedCost||67250);
+
+  const recent=S.production.slice(-8);
+  const maxP=Math.max(...recent.map(p=>p.pieces),1);
+  document.getElementById('chartBars').innerHTML=recent.length===0
+    ?'<div style="width:100%;text-align:center;color:var(--muted2);font-size:12px;padding:16px 0">No data yet</div>'
+    :recent.map(p=>`<div class="bc"><div class="b-val">${p.pieces}</div><div class="bar${p.pieces===maxP?' top':''}" style="height:${Math.round((p.pieces/maxP)*56)+5}px"></div><div class="b-lbl">${fmtD(p.date).split(',')[0]}</div></div>`).join('');
+
+  document.getElementById('pTotal').textContent=totalPcs+' pieces';
+  document.getElementById('pCratesVal').textContent=Math.floor(totalPcs/30)+' crates';
+  document.getElementById('pExtraPcs').textContent=(totalPcs%30)+' extra pieces';
+  document.getElementById('pAvg').textContent=avg;
+  document.getElementById('prodList').innerHTML=S.production.length===0
+    ?'<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6" ry="8"/></svg><p>No production logged yet</p></div>'
+    :[...S.production].reverse().map(p=>`<div class="li"><div class="li-av" style="background:var(--g3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="12" rx="6" ry="8"/></svg></div><div class="li-body"><div class="li-name">${fmtD(p.date)}</div><div class="li-sub">${p.note||'No note'}</div></div><div class="li-right"><span class="badge bg-g">${fmtEF(p.pieces)}</span><span style="font-size:10px;color:var(--muted2);font-weight:600">${p.pieces} pcs</span></div></div>`).join('');
+
+  document.getElementById('sCash').textContent=N(cashIn);
+  document.getElementById('sOwed').textContent=N(cashOwed);
+  document.getElementById('salesDot').className='nb-dot'+(cashOwed>0?' show':'');
+
+  const overdue=S.debtors.filter(d=>d.addedDate&&(d.cashOwed||0)>0&&daysBetween(d.addedDate,t)>=7);
+  document.getElementById('overdueBanners').innerHTML=overdue.map(d=>`<div class="overdue-bar"><div class="ob-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="ob-title">Overdue: ${d.name}</div><div class="ob-sub">${N(d.cashOwed)} owed · ${daysBetween(d.addedDate,t)} days</div></div></div>`).join('');
+
+  document.getElementById('debtList').innerHTML=S.debtors.length===0
+    ?'<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><p>No active debtors!</p></div>'
+    :S.debtors.map(d=>{const days=d.addedDate?daysBetween(d.addedDate,t):0;const ageCls=days>=7?'bg-r':days>=4?'bg-a':'bg-g';return`<div class="li"><div class="li-av" style="background:${avBg(d.name)}">${d.name[0].toUpperCase()}</div><div class="li-body"><div class="li-name">${d.name}</div><div class="li-sub">${d.note||''}</div></div><div class="li-right"><span class="badge bg-r">${N(d.cashOwed)}</span><span class="badge ${ageCls}" style="font-size:9px;padding:2px 7px">${days}d</span></div></div>`;}).join('');
+
+  document.getElementById('salesList').innerHTML=S.sales.length===0
+    ?'<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg><p>No sales yet</p></div>'
+    :[...S.sales].reverse().map(x=>`<div class="li"><div class="li-av" style="background:${avBg(x.buyer)}">${x.buyer[0].toUpperCase()}</div><div class="li-body"><div class="li-name">${x.buyer}</div><div class="li-sub">${fmtD(x.date)} · ${x.crates}c${x.pieces>0?' '+x.pieces+'p':''}</div></div><div class="li-right">${(x.paid||0)>0?`<span class="badge bg-g">${N(x.paid)}</span>`:''} ${(x.owed||0)>0?`<span class="badge bg-r">${N(x.owed)} owed</span>`:''} ${(x.paid||0)===0&&(x.owed||0)===0?`<span class="badge bg-m">Pending</span>`:''}</div></div>`).join('');
+
+  document.getElementById('dSel').innerHTML='<option value="">— Select debtor —</option>'+S.debtors.map((d,i)=>`<option value="${i}">${d.name} — ${N(d.cashOwed)}</option>`).join('');
+  document.getElementById('buyerSuggestions').innerHTML=[...new Set(S.sales.map(x=>x.buyer))].map(b=>`<option value="${b}">`).join('');
+  document.getElementById('apiStatus').textContent=getKey()?'✅ Configured':'Not configured';
+}
+
+// ── CUSTOMERS ─────────────────────────────────────────────────────────────────
+function renderCustomers(){
+  const map={};
+  S.sales.forEach(x=>{
+    if(!map[x.buyer])map[x.buyer]={name:x.buyer,paid:0,owed:0,visits:0,last:x.date};
+    map[x.buyer].paid+=(x.paid||0);map[x.buyer].owed+=(x.owed||0);
+    map[x.buyer].visits++;if(x.date>map[x.buyer].last)map[x.buyer].last=x.date;
+  });
+  const list=Object.values(map).sort((a,b)=>b.paid-a.paid);
+  const el=document.getElementById('customerList');
+  if(!list.length){el.innerHTML='<div class="empty" style="padding:40px 0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>No customers yet</p></div>';return;}
+  el.innerHTML=list.map(c=>{const note=S.buyerNotes&&S.buyerNotes[c.name]||'';const reliable=c.owed===0&&c.visits>0;return`<div class="cust-card"><div class="cust-top"><div class="cust-info"><div class="cust-av" style="background:${avBg(c.name)}">${c.name[0].toUpperCase()}</div><div class="cust-name">${c.name}</div></div><span class="badge ${reliable?'bg-g':c.owed>0?'bg-r':'bg-m'}">${reliable?'✓ Reliable':c.owed>0?'⏳ Owes':'Regular'}</span></div><div class="cust-stats"><div class="cstat">Visits <b>${c.visits}</b></div><div class="cstat">Paid <b>${N(c.paid)}</b></div>${c.owed>0?`<div class="cstat">Owes <b style="color:var(--red)">${N(c.owed)}</b></div>`:''}<div class="cstat">Last <b>${fmtD(c.last)}</b></div></div><div class="cust-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><input class="cust-note-input" value="${note}" placeholder="Add note about this buyer..." onblur="saveNote('${c.name}',this.value)"/></div></div>`;}).join('');
+}
+function saveNote(name,val){if(!S.buyerNotes)S.buyerNotes={};S.buyerNotes[name]=val;save();}
+
+// ── BATCHES ───────────────────────────────────────────────────────────────────
+function renderBatches(){
+  const allClosed=[...BATCH_HISTORY,...(S.closedBatches||[])];
+  const n=S.currentBatch||11;
+  document.getElementById('batchTabs').innerHTML=allClosed.map((b,i)=>`<div class="btab" onclick="switchBatch(event,'bc${i}')">${b.name}</div>`).join('')+`<div class="btab active" onclick="switchBatch(event,'bccurrent')">Batch ${n} ▶</div>`;
+  const totalPcs=S.production.reduce((s,p)=>s+p.pieces,0);
+  const cashIn=S.sales.reduce((s,x)=>s+(x.paid||0),0);
+  const cashOwed=S.debtors.reduce((s,d)=>s+(d.cashOwed||0),0);
+  const totalExp=S.expenses.reduce((s,e)=>s+(e.amount||0),0);
+  document.getElementById('batchContents').innerHTML=
+    allClosed.map((b,i)=>`<div class="batch-content" id="bc${i}">${renderClosedBatch(b)}</div>`).join('')+
+    `<div class="batch-content active" id="bccurrent">
+      <div class="batch-hero" style="background:var(--g)">
+        <div class="bh-eye">Batch ${n} · In Progress</div>
+        <div class="bh-amount">${N(cashIn-totalExp)}</div>
+        <div class="bh-sub">Net Cash · Started 29 Aug 2026</div>
+        <div class="bh-grid">
+          <div class="bhg"><div class="bhg-lbl">Collected</div><div class="bhg-val">${N(cashIn)}</div></div>
+          <div class="bhg"><div class="bhg-lbl">Owed</div><div class="bhg-val">${N(cashOwed)}</div></div>
+          <div class="bhg"><div class="bhg-lbl">Produced</div><div class="bhg-val">${fmtE(totalPcs)}</div></div>
+        </div>
+      </div>
+      <div class="info-table" style="margin-top:4px">
+        <div class="it-row"><span class="it-key">Cash Collected</span><span class="it-val">${N(cashIn)}</span></div>
+        <div class="it-row"><span class="it-key">Expenses</span><span class="it-val" style="color:var(--red)">-${N(totalExp)}</span></div>
+        <div class="it-row"><span class="it-key">Net Cash</span><span class="it-val" style="color:var(--g)">${N(cashIn-totalExp)}</span></div>
+        <div class="it-row"><span class="it-key">Cash Owed</span><span class="it-val" style="color:var(--red)">${N(cashOwed)}</span></div>
+        <div class="it-row"><span class="it-key">Feed Cost</span><span class="it-val">${N(S.feedCost||67250)}</span></div>
+        <div class="it-row"><span class="it-key">Total Produced</span><span class="it-val">${totalPcs} pieces</span></div>
+      </div>
+    </div>`;
+}
+
+function renderClosedBatch(b){
+  const outstanding=b.debtors?b.debtors.filter(d=>!d.paid&&(d.owed||0)>0):[];
+  return `<div class="batch-hero" style="background:#1864ab">
+    <div class="bh-eye">${b.name} · Final</div>
+    <div class="bh-amount">${N(b.netProfit)}</div>
+    <div class="bh-sub">Net Profit · ${fmtD(b.startDate)} – ${fmtD(b.endDate)}</div>
+    <div class="bh-grid">
+      <div class="bhg"><div class="bhg-lbl">Revenue</div><div class="bhg-val">${N(b.totalRevenue)}</div></div>
+      <div class="bhg"><div class="bhg-lbl">Feed</div><div class="bhg-val">${N(b.feedCost)}</div></div>
+      <div class="bhg"><div class="bhg-lbl">Margin</div><div class="bhg-val">${b.margin}%</div></div>
+    </div>
+  </div>
+  <div class="info-table" style="margin-top:4px">
+    <div class="it-row"><span class="it-key">Total Revenue</span><span class="it-val">${N(b.totalRevenue)}</span></div>
+    <div class="it-row"><span class="it-key">Feed Cost</span><span class="it-val" style="color:var(--red)">-${N(b.feedCost)}</span></div>
+    <div class="it-row"><span class="it-key">Expenses</span><span class="it-val" style="color:var(--red)">-${N(b.expenses)}</span></div>
+    <div class="it-row"><span class="it-key">Net Profit</span><span class="it-val" style="color:var(--g)">${N(b.netProfit)}</span></div>
+    <div class="it-row"><span class="it-key">Margin</span><span class="it-val" style="color:var(--g)">${b.margin}%</span></div>
+    <div class="it-row"><span class="it-key">Produced</span><span class="it-val">${b.totalPieces} pieces</span></div>
+  </div>
+  ${outstanding.length>0?`<div class="sh" style="margin-top:4px"><div class="sh-title">Outstanding</div></div>
+  <div class="list-card">${b.debtors.map((d,di)=>`<div class="li"><div class="li-av" style="background:${d.isStock?'#fff4e6':avBg(d.name)}">${d.isStock?'📦':d.name[0]}</div><div class="li-body"><div class="li-name">${d.name}</div><div class="li-sub">${d.note}</div></div><div class="li-right">${d.paid?'<span class="badge bg-g">✓ Cleared</span>':`<span class="badge bg-r">${N(d.owed)}</span><button onclick="markClosedDebt('${b.id}',${di})" style="font-size:10px;font-weight:700;color:var(--g);background:var(--g3);border:1px solid #b3d9b3;border-radius:20px;padding:2px 8px;cursor:pointer;margin-top:2px;white-space:nowrap">Mark Paid</button>`}</div></div>`).join('')}</div>`:''}`;
+}
+
+function markClosedDebt(batchId,di){
+  const b=S.closedBatches.find(x=>x.id===batchId);
+  const bh=BATCH_HISTORY.find(x=>x.id===batchId);
+  if(bh&&bh.debtors[di]){bh.debtors[di].paid=true;toast('Marked paid');renderBatches();return;}
+  if(b&&b.debtors[di]){b.debtors[di].paid=true;save();toast('Marked paid');renderBatches();}
+}
+
+function switchBatch(e,id){
+  document.querySelectorAll('.btab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.batch-content').forEach(c=>c.classList.remove('active'));
+  e.target.classList.add('active');
+  const el=document.getElementById(id);if(el)el.classList.add('active');
+}
+
+// ── END BATCH ─────────────────────────────────────────────────────────────────
+function endBatch(){
+  const n=S.currentBatch||11;
+  const totalPcs=S.production.reduce((s,p)=>s+p.pieces,0);
+  const cashIn=S.sales.reduce((s,x)=>s+(x.paid||0),0);
+  const cashOwed=S.debtors.reduce((s,d)=>s+(d.cashOwed||0),0);
+  const totalExp=S.expenses.reduce((s,e)=>s+(e.amount||0),0);
+  const feed=S.feedCost||67250;
+  const totalRev=cashIn+cashOwed;
+  const netProfit=totalRev-feed-totalExp;
+  const margin=totalRev>0?((netProfit/totalRev)*100).toFixed(1):0;
+  const startDate=S.production.length>0?S.production[0].date:td();
+  const endDate=S.production.length>0?S.production[S.production.length-1].date:td();
+  if(!confirm(`Close Batch ${n}?\n\nNet Profit: ${N(netProfit)}\nMargin: ${margin}%\nProduced: ${totalPcs} pieces\n\nThis cannot be undone.`))return;
+  if(!S.closedBatches)S.closedBatches=[];
+  S.closedBatches.push({id:'batch'+n,name:'Batch '+n,feedCost:feed,startDate,endDate,totalRevenue:totalRev,netProfit,expenses:totalExp,margin:parseFloat(margin),totalPieces:totalPcs,debtors:S.debtors.map(d=>({name:d.name,owed:d.cashOwed||0,note:d.note||'',paid:false}))});
+  const next=n+1;S.currentBatch=next;S.production=[];S.sales=[];S.expenses=[];S.debtors=[];
+  save();render();toast(`Batch ${n} closed! Batch ${next} started.`);go('batches');
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────────
+function renderNotifications(){
+  const t=td();const notifs=[];
+  S.debtors.forEach(d=>{
+    if((d.cashOwed||0)>0&&d.addedDate){
+      const days=daysBetween(d.addedDate,t);
+      if(days>=7)notifs.push({type:'red',title:`${d.name} is overdue`,sub:`${N(d.cashOwed)} owed · ${days} days`});
+      else if(days>=4)notifs.push({type:'amber',title:`${d.name} — payment due soon`,sub:`${N(d.cashOwed)} owed · ${days} days`});
+    }
+  });
+  const todayLogged=S.production.some(p=>p.date===t);
+  if(!todayLogged)notifs.push({type:'blue',title:'Production not logged today',sub:"Remember to log today's egg count"});
+  const totalPcs=S.production.reduce((s,p)=>s+p.pieces,0);
+  const totalSold=S.sales.reduce((s,x)=>s+(x.crates*30+x.pieces),0);
+  const stock=totalPcs-totalSold;
+  if(stock>60)notifs.push({type:'green',title:'Good stock available',sub:`${fmtEF(stock)} ready to sell`});
+  if(!notifs.length)notifs.push({type:'green',title:'All clear!',sub:'No pending alerts'});
+  document.getElementById('notifList').innerHTML=notifs.map(n=>`<div class="notif-item"><div class="notif-dot ${n.type}"></div><div><div class="notif-title">${n.title}</div><div class="notif-sub">${n.sub}</div></div></div>`).join('');
+}
+
+// ── REMINDERS ─────────────────────────────────────────────────────────────────
+function loadReminderUI(){
+  const r=S.reminders||{r1:{time:'07:00',on:true},r2:{time:'13:00',on:true},r3:{time:'19:00',on:true}};
+  ['r1','r2','r3'].forEach((k,i)=>{
+    const n=i+1;
+    document.getElementById('rem'+n+'Time').value=r[k]?r[k].time:'07:00';
+    const btn=document.getElementById('rem'+n+'Toggle');
+    btn.className='reminder-toggle'+(r[k]&&r[k].on?' on':'');
+  });
+}
+
+function toggleReminder(n){
+  const btn=document.getElementById('rem'+n+'Toggle');
+  btn.classList.toggle('on');
+}
+
+function saveReminders(){
+  if(!S.reminders)S.reminders={};
+  ['r1','r2','r3'].forEach((k,i)=>{
+    const n=i+1;
+    S.reminders[k]={
+      time:document.getElementById('rem'+n+'Time').value,
+      on:document.getElementById('rem'+n+'Toggle').classList.contains('on')
+    };
+  });
+  save();
+  scheduleReminders();
+  toast('Reminder times saved!');
+}
+
+function scheduleReminders(){
+  if(!('Notification' in window))return;
+  Notification.requestPermission().then(perm=>{
+    if(perm!=='granted')return;
+    const r=S.reminders||{};
+    Object.values(r).forEach(rem=>{
+      if(!rem.on)return;
+      const[h,m]=rem.time.split(':').map(Number);
+      const now=new Date();
+      const next=new Date();
+      next.setHours(h,m,0,0);
+      if(next<=now)next.setDate(next.getDate()+1);
+      const delay=next-now;
+      setTimeout(()=>{
+        new Notification('LayerPro 🐔',{body:"Time to log today's egg production!",icon:'/favicon.ico'});
+        scheduleReminders();
+      },delay);
+    });
+  });
+}
+
+// ── WEATHER ───────────────────────────────────────────────────────────────────
+async function loadWeather(){
+  try{
+    const r=await fetch('https://wttr.in/Ilorin?format=j1');const d=await r.json();const c=d.current_condition[0];
+    const temp=parseInt(c.temp_C);
+    document.getElementById('wTemp').textContent=temp+'°C';
+    document.getElementById('wDesc').textContent=c.weatherDesc[0].value;
+    document.getElementById('wHumTxt').textContent=c.humidity+'%';
+    document.getElementById('wFeelTxt').textContent='Feels '+c.FeelsLikeC+'°C';
+    document.getElementById('wWindTxt').textContent=c.windspeedKmph+' km/h';
+    let advice='';
+    if(temp<18)advice='Too cold. Close the pen and add warmth.';
+    else if(temp<=24)advice='Perfect conditions! Hens should be at peak laying today.';
+    else if(temp<=30)advice='Getting warm. Give birds constant cool water. Watch for panting.';
+    else if(temp<=35)advice='Heat alert! Production may drop 10–20%. More ventilation and cool water.';
+    else advice='DANGER: Severe heat stress. Open all vents, spray cool water immediately.';
+    document.getElementById('advText').textContent=advice;
+    if(temp>32)toast('⚠️ High temperature — check your birds','warning');
+  }catch(e){document.getElementById('wDesc').textContent='Could not load. Check internet.';}
+}
+
+// ── VOICE TO TEXT ─────────────────────────────────────────────────────────────
+let recognition=null;let isRecording=false;
+function toggleMic(){
+  if(!('webkitSpeechRecognition' in window)&&!('SpeechRecognition' in window)){
+    toast('Voice not supported on this browser','error');return;
+  }
+  if(isRecording){
+    recognition.stop();return;
+  }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recognition=new SR();
+  recognition.lang='en-NG';
+  recognition.continuous=false;
+  recognition.interimResults=false;
+  recognition.onstart=()=>{
+    isRecording=true;
+    document.getElementById('micBtn').classList.add('recording');
+    toast('Listening... speak now','warning');
+  };
+  recognition.onresult=(e)=>{
+    const text=e.results[0][0].transcript;
+    document.getElementById('chatInp').value=text;
+    toast('Got it — tap send!');
+  };
+  recognition.onend=()=>{
+    isRecording=false;
+    document.getElementById('micBtn').classList.remove('recording');
+  };
+  recognition.onerror=(e)=>{
+    isRecording=false;
+    document.getElementById('micBtn').classList.remove('recording');
+    toast('Could not hear you — try again','error');
+  };
+  recognition.start();
+}
+
+// ── CHAT (GEMINI) ─────────────────────────────────────────────────────────────
+function getKey(){return localStorage.getItem('lp_gemini_key')||'';}
+function saveApiKey(){const k=document.getElementById('apiKeyInput').value.trim();if(!k){toast('Enter your API key','error');return;}localStorage.setItem('lp_gemini_key',k);document.getElementById('apiBanner').style.display='none';addBot('✅ Gemini API key saved! I\'m ready. Tap the mic or type your question.');}
+function saveApiKeySettings(){const k=document.getElementById('settingsApiKey').value.trim();if(!k){toast('Enter your API key','error');return;}localStorage.setItem('lp_gemini_key',k);document.getElementById('apiStatus').textContent='✅ Configured';toast('API key saved!');}
+function addBot(t){const e=document.createElement('div');e.className='cmsg bot';e.textContent=t;document.getElementById('chatMsgs').appendChild(e);e.scrollIntoView({behavior:'smooth'});}
+function addUser(t){const e=document.createElement('div');e.className='cmsg user';e.textContent=t;document.getElementById('chatMsgs').appendChild(e);}
+
+async function sendChat(){
+  const inp=document.getElementById('chatInp');const msg=inp.value.trim();if(!msg)return;
+  const key=getKey();if(!key){addBot('Please add your Gemini API key in Settings.');return;}
+  inp.value='';addUser(msg);
+  const typing=document.createElement('div');typing.className='cmsg bot';typing.textContent='Thinking...';
+  document.getElementById('chatMsgs').appendChild(typing);typing.scrollIntoView({behavior:'smooth'});
+  const totalPcs=S.production.reduce((s,p)=>s+p.pieces,0);
+  const cashIn=S.sales.reduce((s,x)=>s+(x.paid||0),0);
+  const cashOwed=S.debtors.reduce((s,d)=>s+(d.cashOwed||0),0);
+  const context=`You are LayerPro AI for a Nigerian poultry farm in Ilorin, Kwara. Batch ${S.currentBatch||11}, Feed: ${N(S.feedCost||67250)}. Produced: ${totalPcs} pcs. Collected: ${N(cashIn)}. Owed: ${N(cashOwed)}. Debtors: ${S.debtors.map(d=>d.name+' owes '+N(d.cashOwed)).join(', ')||'None'}. 1 crate=30 pieces. Standard: ₦4,700/crate. Bulk/Wife: ₦4,500/crate. Be warm, practical, Nigerian context. Recommend a vet for health issues. Keep answers concise.`;
+  try{
+    const resp=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({contents:[{parts:[{text:context+'\n\nUser: '+msg}]}]})
+    });
+    const data=await resp.json();
+    typing.remove();
+    const text=data.candidates?.[0]?.content?.parts?.[0]?.text||'Something went wrong. Check your API key.';
+    addBot(text);
+  }catch(err){typing.remove();addBot('Connection error. Check your internet.');}
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function logProd(){
+  const date=document.getElementById('lPDate').value;const pieces=parseInt(document.getElementById('lPPcs').value);const note=document.getElementById('lPNote').value.trim();
+  if(!date||isNaN(pieces)||pieces<1){toast('Enter date and pieces','error');return;}
+  S.production.push({date,pieces,note});
+  document.getElementById('lPPcs').value='';document.getElementById('lPNote').value='';document.getElementById('pcsHint').textContent='';
+  save();render();toast('Saved — '+fmtEF(pieces));go('production');
+}
+function logSale(){
+  const date=document.getElementById('lSDate').value;const buyer=document.getElementById('lSBuyer').value.trim();
+  const crates=parseInt(document.getElementById('lSCrates').value)||0;const pieces=parseInt(document.getElementById('lSPcs').value)||0;
+  const paid=parseFloat(document.getElementById('lSPaid').value)||0;const owed=parseFloat(document.getElementById('lSOwed').value)||0;
+  const type=document.getElementById('lSType').value;
+  if(!date||!buyer){toast('Enter date and buyer name','error');return;}
+  if(crates===0&&pieces===0){toast('Enter crates or pieces sold','error');return;}
+  S.sales.push({date,buyer,crates,pieces,paid,owed,type,note:''});
+  if(owed>0){const ex=S.debtors.find(d=>d.name.toLowerCase()===buyer.toLowerCase());if(ex){ex.cashOwed=(ex.cashOwed||0)+owed;}else{S.debtors.push({id:Date.now(),name:buyer,cashOwed:owed,cratesOwed:0,piecesOwed:0,note:'Sale on '+fmtD(date),addedDate:date});}}
+  ['lSDate','lSBuyer','lSCrates','lSPcs','lSPaid','lSOwed'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('calcHint').style.display='none';
+  save();render();toast('Sale saved for '+buyer);go('sales');
+}
+function logExpense(){
+  const date=document.getElementById('lEDate').value;const amount=parseFloat(document.getElementById('lEAmt').value)||0;const note=document.getElementById('lENote').value.trim();const cat=document.getElementById('lECat').value;
+  if(!date||!amount||!note){toast('Fill in all expense fields','error');return;}
+  S.expenses.push({date,amount,category:cat,note});
+  ['lEDate','lEAmt','lENote'].forEach(id=>document.getElementById(id).value='');
+  save();render();toast('Expense saved — '+N(amount));go('home');
+}
+function addDebtor(){
+  const name=document.getElementById('lDName').value.trim();const cash=parseFloat(document.getElementById('lDCash').value)||0;const note=document.getElementById('lDNote').value.trim();
+  if(!name||!cash){toast('Enter name and amount','error');return;}
+  const ex=S.debtors.find(d=>d.name.toLowerCase()===name.toLowerCase());
+  if(ex){ex.cashOwed=(ex.cashOwed||0)+cash;toast('Added to '+name+' debt');}
+  else{S.debtors.push({id:Date.now(),name,cashOwed:cash,cratesOwed:0,piecesOwed:0,note,addedDate:td()});toast('Debtor added — '+name);}
+  ['lDName','lDCash','lDNote'].forEach(id=>document.getElementById(id).value='');
+  save();render();go('sales');
+}
+function markPaid(){
+  const idx=document.getElementById('dSel').value;if(idx===''){toast('Select a debtor','error');return;}
+  const i=parseInt(idx);const cash=parseFloat(document.getElementById('dCash').value)||0;
+  if(!cash){toast('Enter amount paid','error');return;}
+  const d=S.debtors[i];const name=d.name;
+  d.cashOwed=Math.max(0,(d.cashOwed||0)-cash);
+  let rem=cash;for(let x of S.sales){if(x.buyer===d.name&&(x.owed||0)>0){const r=Math.min(x.owed,rem);x.owed-=r;x.paid=(x.paid||0)+r;rem-=r;if(rem<=0)break;}}
+  if((d.cashOwed||0)===0)S.debtors.splice(i,1);
+  document.getElementById('dCash').value='';
+  save();render();toast(name+' — '+N(cash)+' recorded');
+}
+function showHint(v){const n=parseInt(v);document.getElementById('pcsHint').textContent=(!isNaN(n)&&n>0)?'= '+fmtEF(n):'';}
+function setHalf(){document.getElementById('lSCrates').value='0';document.getElementById('lSPcs').value='15';calcSaleTotal();}
+function setOneCrate(){document.getElementById('lSCrates').value='1';document.getElementById('lSPcs').value='0';calcSaleTotal();}
+function calcSaleTotal(){
+  const crates=parseInt(document.getElementById('lSCrates').value)||0;const pieces=parseInt(document.getElementById('lSPcs').value)||0;
+  const type=document.getElementById('lSType').value;
+  if(crates===0&&pieces===0){document.getElementById('calcHint').style.display='none';return;}
+  const rate=type==='standard'?4700:4500;
+  const totalPcs=crates*30+pieces;
+  const total=Math.floor(totalPcs/30)*rate+Math.round((totalPcs%30)/30*rate);
+  const hint=document.getElementById('calcHint');hint.style.display='block';
+  hint.textContent=`Expected: ${N(total)} (${crates}c${pieces>0?' '+pieces+'p':''} @ ${N(rate)}/crate)`;
+}
+
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportCSV(){
+  let c='LAYERPRO EXPORT — '+new Date().toLocaleDateString()+'\n\nPRODUCTION\nDate,Pieces,Crates,Extra,Note\n';
+  S.production.forEach(p=>{c+=`${p.date},${p.pieces},${Math.floor(p.pieces/30)},${p.pieces%30},"${p.note||''}"\n`;});
+  c+='\nSALES\nDate,Buyer,Crates,Pieces,Paid,Owed,Type\n';
+  S.sales.forEach(x=>{c+=`${x.date},"${x.buyer}",${x.crates},${x.pieces||0},${x.paid||0},${x.owed||0},${x.type}\n`;});
+  c+='\nEXPENSES\nDate,Amount,Category,Description\n';
+  S.expenses.forEach(e=>{c+=`${e.date},${e.amount},"${e.category||'Other'}","${e.note}"\n`;});
+  c+='\nDEBTORS\nName,Owed,Note\n';
+  S.debtors.forEach(d=>{c+=`"${d.name}",${d.cashOwed||0},"${d.note||''}"\n`;});
+  const b=new Blob([c],{type:'text/csv'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download='LayerPro-Batch'+(S.currentBatch||11)+'-'+td()+'.csv';a.click();URL.revokeObjectURL(u);toast('CSV downloaded');
+}
+function getWeeklyText(){
+  const now=new Date(),ws=new Date(now);ws.setDate(now.getDate()-7);const wss=ws.toISOString().split('T')[0];
+  const wp=S.production.filter(p=>p.date>=wss);const totalPcs=wp.reduce((s,p)=>s+p.pieces,0);
+  const cashIn=S.sales.filter(x=>x.date>=wss).reduce((s,x)=>s+(x.paid||0),0);
+  const cashOwed=S.debtors.reduce((s,d)=>s+(d.cashOwed||0),0);
+  let r=`*LAYERPRO WEEKLY REPORT*\nWeek ending: ${now.toLocaleDateString('en-NG')}\n\n🥚 *Production:* ${totalPcs} pieces = ${Math.floor(totalPcs/30)} crates ${totalPcs%30} pcs\n📊 Daily avg: ${wp.length>0?Math.round(totalPcs/wp.length):0} pcs/day\n\n💰 *Revenue:*\nCollected: ${N(cashIn)}\nStill owed: ${N(cashOwed)}\n\n📅 *Daily Log:*\n`;
+  wp.forEach(p=>{r+=`${fmtD(p.date)}: ${p.pieces} pcs\n`;});
+  r+=`\n_Generated by LayerPro v7.0_`;return r;
+}
+function exportWeekly(){
+  const r=getWeeklyText().replace(/\*/g,'').replace(/_/g,'');
+  const b=new Blob([r],{type:'text/plain'});const u=URL.createObjectURL(b);
+  const a=document.createElement('a');a.href=u;a.download='LayerPro-Weekly-'+td()+'.txt';a.click();URL.revokeObjectURL(u);toast('Weekly report downloaded');
+}
+function shareWhatsApp(){window.open('https://wa.me/?text='+encodeURIComponent(getWeeklyText()),'_blank');}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+load();
+const savedKey=localStorage.getItem('lp_gemini_key')||'';
+if(savedKey){document.getElementById('apiBanner').style.display='none';}
+else{localStorage.setItem('lp_gemini_key','AIzaSyAb8RN6IeBMS0jIJ_4-WqkO8FAtcmX-MMOFNuv8W6oHp2OdD48w');}
+const t=td();['lPDate','lSDate','lEDate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=t;});
+render();
+scheduleReminders();
+if(new Date().getDay()===0)setTimeout(()=>toast('📥 Sunday reminder — download your CSV backup!','warning'),3000);
+</script>
+</body>
+</html>

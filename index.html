@@ -647,34 +647,14 @@ const BATCH_HISTORY = [
 
 // ── CURRENT BATCH DATA ────────────────────────────────────────────────────────
 let S = {
-  currentBatch:12, feedCost:67250,
+  currentBatch:13, feedCost:67250,
   production:[
-    {date:'2026-09-10',pieces:73,note:'Wednesday — Batch 12 starts'},
-    {date:'2026-09-11',pieces:72,note:'Thursday'},
-    {date:'2026-09-12',pieces:73,note:'Friday'},
-    {date:'2026-09-13',pieces:75,note:'Saturday'},
-    {date:'2026-09-14',pieces:73,note:'Sunday'},
-    {date:'2026-09-15',pieces:78,note:'Monday'},
-    {date:'2026-09-16',pieces:74,note:'Tuesday'},
-    {date:'2026-09-17',pieces:71,note:'Wednesday'},
-    {date:'2026-09-18',pieces:73,note:'Thursday'},
-    {date:'2026-09-19',pieces:71,note:'Friday'},
-    {date:'2026-09-20',pieces:73,note:'Saturday'},
-    {date:'2026-09-21',pieces:68,note:'Monday'},
-    {date:'2026-09-22',pieces:73,note:'Tuesday'},
   ],
   sales:[
-    {date:'2026-09-13',buyer:'Wife',crates:2,pieces:15,paid:0,owed:11250,type:'wife',note:'2.5 crates'},
-    {date:'2026-09-14',buyer:'Mum Nasirudeen',crates:2,pieces:0,paid:9400,owed:0,type:'standard',note:'Paid'},
-    {date:'2026-09-19',buyer:'Eleha',crates:4,pieces:0,paid:18800,owed:0,type:'standard',note:'Paid'},
-    {date:'2026-09-19',buyer:'Wife',crates:1,pieces:0,paid:0,owed:4500,type:'wife',note:''},
-    {date:'2026-09-22',buyer:'Wife',crates:2,pieces:15,paid:0,owed:11250,type:'wife',note:'2.5 crates'},
   ],
   expenses:[
   ],
   debtors:[
-    {id:1,name:'Mum Othman Friend',cashOwed:18800,note:'Tue 16 Sep — 4 crates',addedDate:'2026-09-16'},
-    {id:2,name:'Wife',cashOwed:15750,note:'3.5 crates total — 13 Sep + 19 Sep + 22 Sep',addedDate:'2026-09-13'},
   ],
   closedBatches:[{
       id:'batch11', name:'Batch 11',
@@ -688,6 +668,22 @@ let S = {
       unsoldPieces:0,
       unsoldValue:0,
       debtors:[]
+    },{
+      id:'batch12', name:'Batch 12',
+      feedCost:67250,
+      startDate:'2026-09-10', endDate:'2026-09-22',
+      totalRevenue:69800,
+      netProfit:2550,
+      expenses:0,
+      margin:3.7,
+      totalPieces:957,
+      unsoldPieces:15,
+      unsoldValue:2350,
+      debtors:[
+        {name:'Mum Othman Friend',owed:18800,note:'Tue 16 Sep — 4 crates',paid:false},
+        {name:'Wife',owed:15750,note:'3.5 crates total',paid:false},
+        {name:'Unsold Stock',owed:2350,note:'Half crate unsold',paid:false,isStock:true},
+      ]
     }
   ],
   buyerNotes:{},
